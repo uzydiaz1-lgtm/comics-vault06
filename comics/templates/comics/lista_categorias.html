@@ -1,0 +1,16 @@
+{% extends 'comics/base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto p-8">
+    <form method="get" action="{% url 'comics:buscar_categorias' %}" class="mb-8 flex gap-4">
+        <input type="text" name="parametro" value="{{ parametro }}" placeholder="Buscar área" class="flex-1 border-4 border-black p-3 font-bold">
+        <button type="submit" class="border-4 border-black bg-black text-white font-black uppercase px-6">Buscar</button>
+    </form>
+    {% if user.is_authenticated %}<a href="{% url 'comics:crear_categoria' %}" class="inline-block border-4 border-black bg-blue-400 px-6 py-3 font-black uppercase neo-shadow">Nueva área</a>{% endif %}
+    <div class="mt-8 grid gap-4">
+        {% for categoria in categorias %}
+        <article class="border-4 border-black bg-white p-5 neo-shadow"><h2 class="text-2xl font-black uppercase">{{ categoria.nombre }}</h2><p>{{ categoria.descripcion|default:'Sin descripción' }}</p></article>
+        {% empty %}<p class="border-4 border-black bg-gray-100 p-8 font-black">No hay áreas para esta búsqueda.</p>{% endfor %}
+    </div>
+</div>
+{% endblock %}

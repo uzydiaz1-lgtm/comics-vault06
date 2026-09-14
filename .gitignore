@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django local files
+db.sqlite3
+*.log
+media/*
+!media/portadas/
+!media/portadas/images.jfif
+staticfiles/
+
+# Python environments and local configuration
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini

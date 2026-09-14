@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMIC VAULT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neo-shadow { box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
+        .neo-shadow:hover { box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); transform: translate(4px, 4px); }
+    </style>
+</head>
+<body class="bg-gray-50 text-black">
+    <header class="border-b-8 border-black bg-white flex flex-col md:flex-row items-center justify-between px-8 py-4 sticky top-0 z-50">
+        <a href="{% url 'comics:inicio' %}">
+            <h1 class="text-3xl font-black tracking-tighter"><span class="text-black">COMIC</span> <span class="text-red-600">VAULT</span></h1>
+        </a>
+
+        <nav class="hidden md:flex gap-8 font-bold text-sm uppercase">
+            <a href="{% url 'comics:catalogo' %}" class="hover:text-blue-600 border-b-4 border-transparent hover:border-blue-600 transition-all pb-1">Catálogo</a>
+            <a href="#" class="hover:text-blue-600 transition-colors pb-1">Subastas #1</a>
+            <a href="#" class="hover:text-blue-600 transition-colors pb-1">Novelas Gráficas</a>
+            <a href="#" class="hover:text-blue-600 transition-colors pb-1">Vender</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            {% if user.is_authenticated %}
+                <a href="{% url 'comics:perfil' %}" class="font-black uppercase text-sm border-4 border-black bg-white px-4 py-2 hover:bg-black hover:text-white transition-colors neo-shadow">
+                    {{ user.username }}
+                </a>
+                <a href="{% url 'comics:logout' %}" class="border-4 border-black bg-black text-white font-black uppercase text-sm px-4 py-2 hover:bg-white hover:text-black transition-colors">Salir</a>
+            {% else %}
+                <a href="{% url 'comics:login' %}" class="font-black uppercase text-sm px-2 hover:text-red-600 transition-colors">Ingresar</a>
+                <a href="{% url 'comics:registro' %}" class="border-4 border-black bg-red-600 text-white font-black uppercase text-sm px-6 py-2 hover:bg-black transition-colors neo-shadow">Unirse al Club</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        {% if messages %}
+        <div class="max-w-7xl mx-auto px-8 pt-6">
+            {% for message in messages %}
+            <div class="border-4 border-black bg-emerald-300 p-4 font-black" role="alert">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}
+        <!-- Aquí se inyectará el contenido de las otras vistas -->
+        {% endblock %}
+    </main>
+</body>
+</html>

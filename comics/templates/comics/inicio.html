@@ -1,0 +1,135 @@
+{% extends 'comics/base.html' %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 border-b-8 border-black bg-white">
+    <div class="p-12 md:p-20 flex flex-col justify-center items-start">
+        <span class="border-4 border-black bg-yellow-400 font-black px-3 py-1 text-sm uppercase mb-6 neo-shadow">Ediciones Certificadas CGC</span>
+        <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter mb-6">
+            Historias en <span class="text-red-600">Tinta.</span><br>
+            Joyas en <span class="text-blue-600">Papel.</span>
+        </h2>
+        <p class="text-lg font-medium text-gray-700 max-w-md mb-10 border-l-4 border-black pl-4">
+            Tu santuario para encontrar primeras ediciones, arcos argumentales legendarios y novelas gráficas de culto. De la Edad de Oro al cómic independiente moderno.
+        </p>
+        <a href="{% url 'comics:catalogo' %}" class="border-4 border-black bg-red-600 text-white font-black uppercase text-xl px-8 py-4 hover:bg-black transition-colors neo-shadow">
+            Explorar la Bóveda
+        </a>
+    </div>
+
+    <div class="bg-blue-600 border-l-8 border-black flex items-center justify-center p-12 overflow-hidden relative" style="background-image: radial-gradient(#000 2px, transparent 2px); background-size: 20px 20px;">
+        <div class="relative transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <div class="absolute bottom-4 left-4 z-10 border-4 border-black bg-yellow-400 font-black px-4 py-1 text-sm uppercase neo-shadow">
+                Número #1 Rareza
+            </div>
+            <div class="w-80 h-[28rem] bg-gray-800 border-8 border-black neo-shadow">
+                <img src="https://images.unsplash.com/photo-1612036782180-6f0b6ce846ce?q=80&w=800&auto=format&fit=crop" alt="Cómic Destacado" class="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección Clave: Tres Estilos Únicos -->
+<div class="p-8 md:p-12 max-w-screen-2xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b-8 border-black pb-4">
+        <div>
+            <span class="bg-black text-white font-black uppercase text-xs px-3 py-1 mb-2 inline-block">Nuestros Mundos</span>
+            <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter">Explora por Estilo</h2>
+        </div>
+        <p class="text-right text-gray-700 font-bold max-w-xs hidden md:block">
+            Tres culturas, tres estéticas. Elige tu formato favorito.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+        <a href="{% url 'comics:catalogo' %}?categoria=Americano" class="block group h-full">
+            <div class="border-8 border-black bg-red-600 p-6 neo-shadow transform group-hover:-translate-y-2 transition-all flex flex-col justify-between h-full relative overflow-hidden">
+                <div class="absolute -right-8 -top-8 bg-yellow-400 text-black border-4 border-black font-black text-xs px-8 py-4 rotate-12 uppercase z-10">
+                    ¡PUM! DC &amp; MARVEL
+                </div>
+
+                <div>
+                    <span class="inline-block border-4 border-black bg-blue-600 text-white font-black text-xs uppercase px-3 py-1 mb-4">
+                        Comic Book Era
+                    </span>
+                    <div class="h-56 border-4 border-black bg-yellow-400 mb-6 overflow-hidden relative" style="background-image: radial-gradient(#000 20%, transparent 20%); background-size: 10px 10px;">
+                        <img src="https://images.unsplash.com/photo-1612036782180-6f0b6ce846ce?q=80&w=800&auto=format&fit=crop" alt="Cómics Americanos" class="w-full h-full object-cover border-b-4 border-black group-hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <h3 class="font-black text-white text-3xl uppercase tracking-tighter mb-2 drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">
+                        Americanos &amp; Modernos
+                    </h3>
+                    <p class="text-white font-bold text-sm leading-tight mb-4">
+                        Grapas clásicas, tomos de tapa dura, arcos argumentales de superhéroes y novelas gráficas de autor.
+                    </p>
+                </div>
+
+                <div class="border-4 border-black bg-yellow-400 text-black font-black text-center py-3 uppercase tracking-wider group-hover:bg-black group-hover:text-yellow-400 transition-colors">
+                    Ver Cómics US →
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'comics:catalogo' %}?categoria=Webtoon" class="block group h-full">
+            <div class="border-8 border-black bg-purple-900 p-6 neo-shadow transform group-hover:-translate-y-2 transition-all flex flex-col justify-between h-full relative" style="background-image: linear-gradient(135deg, #581c87 25%, #3b0764 100%);">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="inline-block border-4 border-black bg-emerald-400 text-black font-black text-xs uppercase px-3 py-1">
+                        ● Scroll Vertical / Indie
+                    </span>
+                    <span class="font-mono text-emerald-400 text-xs font-bold">[DIGITAL_FIRST]</span>
+                </div>
+
+                <div>
+                    <div class="h-56 border-4 border-black bg-black mb-6 overflow-hidden p-2 relative">
+                        <div class="w-full h-full border-2 border-emerald-400 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=800&auto=format&fit=crop" alt="Webtoons" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-emerald-500/10 mix-blend-overlay"></div>
+                        </div>
+                    </div>
+                    <h3 class="font-black text-emerald-400 text-3xl uppercase tracking-tighter mb-2">
+                        Webtoons &amp; Autores
+                    </h3>
+                    <p class="text-purple-200 font-bold text-sm leading-tight mb-4">
+                        Narrativas digitales horizontales, historietas independientes de culto y autoedición física.
+                    </p>
+                </div>
+
+                <div class="border-4 border-black bg-emerald-400 text-black font-black text-center py-3 uppercase tracking-wider group-hover:bg-white transition-colors neo-shadow">
+                    Explorar Indie →
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'comics:catalogo' %}?categoria=Manga" class="block group h-full">
+            <div class="border-8 border-black bg-neutral-950 p-6 neo-shadow transform group-hover:-translate-y-2 transition-all flex flex-col justify-between h-full relative">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="inline-block border-4 border-black bg-rose-600 text-white font-black text-xs uppercase px-3 py-1">
+                            マンガ / Import
+                        </span>
+                        <span class="text-white font-black text-sm tracking-widest uppercase">Tankōbon</span>
+                    </div>
+
+                    <div class="h-56 border-4 border-black bg-white mb-6 overflow-hidden relative p-1">
+                        <div class="w-full h-full border-2 border-black overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1606660265514-358ebbadc80d?q=80&w=800&auto=format&fit=crop" alt="Manga" class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-300">
+                            <div class="absolute bottom-0 right-0 bg-black text-white px-3 py-1 text-xs font-black border-t-2 border-l-2 border-black">
+                                右から左 (R-L)
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="font-black text-white text-3xl uppercase tracking-tighter mb-2">
+                        Manga &amp; Importación
+                    </h3>
+                    <p class="text-neutral-400 font-bold text-sm leading-tight mb-4">
+                        Ediciones japonesas, Shonen, Seinen, Shojo y obras de coleccionismo directo de Asia.
+                    </p>
+                </div>
+
+                <div class="border-4 border-black bg-rose-600 text-white font-black text-center py-3 uppercase tracking-wider group-hover:bg-white group-hover:text-black transition-colors">
+                    Ver Catálogo Manga →
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

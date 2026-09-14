@@ -1,0 +1,43 @@
+{% extends 'comics/base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto my-12 p-8 bg-white border-4 border-black neo-shadow text-black">
+    <h2 class="text-3xl font-black uppercase mb-6 text-center border-b-4 border-black pb-3">Mi Perfil de Lector</h2>
+
+    <div class="mb-6 p-4 bg-yellow-400 border-4 border-black font-bold space-y-2">
+        <p class="text-lg">Usuario: <span class="font-black uppercase">{{ user.username }}</span></p>
+        <p class="text-lg">Alias actual: <span class="font-black">{{ perfil.alias|default:"Aún no configurado" }}</span></p>
+    </div>
+
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div class="space-y-3 font-bold border-t-4 border-black pt-4">
+            {{ form.as_p }}
+        </div>
+
+        <button type="submit" class="w-full border-4 border-black bg-black text-white font-black uppercase py-3 hover:bg-yellow-400 hover:text-black transition-colors neo-shadow mt-6">
+            Guardar Cambios
+        </button>
+    </form>
+
+    {% if perfil.comic_favorito %}
+    <div class="mt-8 border-t-4 border-black pt-6">
+        <h3 class="text-xl font-black uppercase mb-4">Tu Cómic Favorito:</h3>
+        <div class="flex items-center gap-4 p-4 border-4 border-black bg-gray-50 neo-shadow">
+            {% if perfil.comic_favorito.portada %}
+                <img src="{{ perfil.comic_favorito.portada.url }}" alt="{{ perfil.comic_favorito.titulo }}" class="w-20 h-28 object-cover border-2 border-black">
+            {% else %}
+                <div class="w-20 h-28 bg-gray-200 border-2 border-black flex items-center justify-center font-black text-xs text-center">
+                    Sin Portada
+                </div>
+            {% endif %}
+            <div>
+                <h4 class="font-black text-lg uppercase">{{ perfil.comic_favorito.titulo }}</h4>
+                <p class="font-medium">Autor: {{ perfil.comic_favorito.autor }}</p>
+                <a href="{% url 'comics:detalle_comic' perfil.comic_favorito.id %}" class="inline-block mt-2 text-sm font-black underline uppercase">Ver Detalle →</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
