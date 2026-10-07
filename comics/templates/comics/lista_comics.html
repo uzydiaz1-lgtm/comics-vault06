@@ -62,6 +62,16 @@
             <a href="{% url 'comics:detalle_comic' comic.id %}" class="mt-6 block text-center border-4 border-black bg-black text-white font-black uppercase py-3 hover:bg-white hover:text-black transition-colors">
                 Ver Detalle
             </a>
+            {% if request.user == comic.propietario %}
+            <div class="mt-3 flex gap-3">
+                <a href="{% url 'comics:editar_comic' comic.id %}" class="flex-1 text-center border-4 border-black bg-yellow-400 font-black uppercase py-2 hover:bg-black hover:text-white transition-colors">
+                    Editar
+                </a>
+                <a href="{% url 'comics:eliminar_comic' comic.id %}" class="flex-1 text-center border-4 border-black bg-red-500 text-white font-black uppercase py-2 hover:bg-black transition-colors">
+                    Eliminar
+                </a>
+            </div>
+            {% endif %}
         </div>
         {% empty %}
         <div class="col-span-1 md:col-span-3 text-center p-12 border-8 border-black bg-gray-100 neo-shadow">

@@ -67,16 +67,34 @@ def registro_usuario(request):
         form = UserCreationForm()
     return render(request, 'comics/registro.html', {'form': form})
 
-def login_usuario(request):
+def login_lector(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            messages.success(request, f'¡Bienvenido de nuevo, {user.username}!')
             return redirect('comics:catalogo')
+        messages.error(request, 'Usuario o contraseña incorrectos.')
     else:
         form = AuthenticationForm()
-    return render(request, 'comics/login.html', {'form': form})
+    return render(request, 'comics/login_lector.html', {'form': form})
+
+def login_admin(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if user.is_staff or user.is_superuser:
+                login(request, user)
+                messages.success(request, f'Sesión de administrador iniciada: {user.username}')
+                return redirect('/admin/')
+            messages.error(request, 'Acceso denegado. Esta cuenta no tiene permisos de administrador.')
+        else:
+            messages.error(request, 'Credenciales de administrador inválidas.')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'comics/login_admin.html', {'form': form})
 
 def logout_usuario(request):
     logout(request)
@@ -104,7 +122,9 @@ def crear_comic(request):
     if request.method == 'POST':
         form = ComicForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            comic = form.save(commit=False)
+            comic.propietario = request.user
+            comic.save()
             messages.success(request, 'El cómic se creó correctamente.')
             return redirect('comics:catalogo')
     else:
@@ -114,6 +134,10 @@ def crear_comic(request):
 @login_required
 def editar_comic(request, pk):
     comic = get_object_or_404(Comic, pk=pk)
+    if comic.propietario != request.user:
+        messages.error(request, 'No tienes permiso para realizar esta acción')
+        return redirect('comics:catalogo')
+
     if request.method == 'POST':
         form = ComicForm(request.POST, request.FILES, instance=comic)
         if form.is_valid():
@@ -127,6 +151,10 @@ def editar_comic(request, pk):
 @login_required
 def eliminar_comic(request, pk):
     comic = get_object_or_404(Comic, pk=pk)
+    if comic.propietario != request.user:
+        messages.error(request, 'No tienes permiso para realizar esta acción')
+        return redirect('comics:catalogo')
+
     if request.method == 'POST':
         comic.delete()
         messages.success(request, 'El cómic se eliminó correctamente.')

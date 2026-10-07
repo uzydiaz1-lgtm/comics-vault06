@@ -11,6 +11,13 @@ class CategoriaArea(models.Model):
 class Comic(models.Model):
     titulo = models.CharField(max_length=150)
     autor = models.CharField(max_length=100)
+    propietario = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='comics_creados',
+    )
     categoria = models.ForeignKey(CategoriaArea, on_delete=models.CASCADE, related_name='comics')
     anio = models.IntegerField(default=2024)
     sinopsis = models.TextField(blank=True, null=True)

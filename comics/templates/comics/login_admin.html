@@ -1,0 +1,16 @@
+{% extends 'comics/base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-12 p-8 bg-red-600 border-8 border-black text-white neo-shadow">
+    <div class="bg-black text-yellow-400 font-black uppercase text-xs px-3 py-1 inline-block mb-2">Área Restringida</div>
+    <h2 class="text-3xl font-black uppercase mb-6 border-b-4 border-black pb-2">Panel de Control Admin</h2>
+
+    <form method="post" action="{% url 'comics:login_admin' %}" class="text-black">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="w-full mt-6 border-4 border-black bg-yellow-400 text-black font-black uppercase py-3 hover:bg-black hover:text-white transition-colors neo-shadow">
+            Acceder al Sistema Admin →
+        </button>
+    </form>
+</div>
+{% endblock %}
