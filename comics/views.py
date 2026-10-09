@@ -1,35 +1,50 @@
-from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
+from django.views.generic import ListView, DetailView
 from .models import Comic, CategoriaArea, UsuarioLector
-from .forms import CategoriaAreaForm, ComicForm, PerfilLectorForm, UsuarioLectorForm
+from .forms import CategoriaAreaForm, PerfilLectorForm, UsuarioLectorForm
 
 def inicio(request):
     return render(request, 'comics/inicio.html')
 
-def catalogo_comics(request):
-    query = request.GET.get('parametro', request.GET.get('q', '')).strip()
-    categoria = request.GET.get('categoria', '').strip()
+class ComicListView(ListView):
+    model = Comic
+    template_name = 'comics/lista_comics.html'
+    context_object_name = 'comics'
 
-    comics = Comic.objects.select_related('categoria').all()
-    categorias = CategoriaArea.objects.all()
+    def get_queryset(self):
+        queryset = Comic.objects.select_related('categoria')
+        self.query = self.request.GET.get('q') or self.request.GET.get('parametro', '')
+        self.query = self.query.strip()
+        self.categoria = self.request.GET.get('categoria', '').strip()
 
-    if query:
-        comics = comics.filter(Q(titulo__icontains=query) | Q(autor__icontains=query))
+        if self.query:
+            queryset = queryset.filter(
+                Q(titulo__icontains=self.query) | Q(autor__icontains=self.query)
+            )
+        if self.categoria:
+            queryset = queryset.filter(categoria__nombre__icontains=self.categoria)
+        return queryset
 
-    if categoria:
-        comics = comics.filter(categoria__nombre__icontains=categoria)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'query': self.query,
+            'parametro': self.query,
+            'categoria_seleccionada': self.categoria,
+            'categorias': CategoriaArea.objects.all(),
+        })
+        return context
 
-    return render(request, 'comics/lista_comics.html', {
-        'comics': comics,
-        'query': query,
-        'parametro': query,
-        'categoria_seleccionada': categoria,
-        'categorias': categorias,
-    })
+
+class ComicDetailView(DetailView):
+    model = Comic
+    template_name = 'comics/detalle_comic.html'
+    context_object_name = 'comic'
 
 
 def buscar_comics(request):
@@ -48,10 +63,6 @@ def buscar_comics(request):
         'query': parametro,
         'categorias': CategoriaArea.objects.all(),
     })
-
-def detalle_comic(request, pk):
-    comic = get_object_or_404(Comic, pk=pk)
-    return render(request, 'comics/detalle_comic.html', {'comic': comic})
 
 def registro_usuario(request):
     if request.method == 'POST':
@@ -116,51 +127,6 @@ def perfil_usuario(request):
         'form': form,
         'perfil': perfil,
     })
-
-@login_required
-def crear_comic(request):
-    if request.method == 'POST':
-        form = ComicForm(request.POST, request.FILES)
-        if form.is_valid():
-            comic = form.save(commit=False)
-            comic.propietario = request.user
-            comic.save()
-            messages.success(request, 'El cómic se creó correctamente.')
-            return redirect('comics:catalogo')
-    else:
-        form = ComicForm()
-    return render(request, 'comics/comic_form.html', {'form': form, 'accion': 'Nuevo'})
-
-@login_required
-def editar_comic(request, pk):
-    comic = get_object_or_404(Comic, pk=pk)
-    if comic.propietario != request.user:
-        messages.error(request, 'No tienes permiso para realizar esta acción')
-        return redirect('comics:catalogo')
-
-    if request.method == 'POST':
-        form = ComicForm(request.POST, request.FILES, instance=comic)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'El cómic se actualizó correctamente.')
-            return redirect('comics:detalle_comic', pk=comic.pk)
-    else:
-        form = ComicForm(instance=comic)
-    return render(request, 'comics/comic_form.html', {'form': form, 'accion': 'Editar'})
-
-@login_required
-def eliminar_comic(request, pk):
-    comic = get_object_or_404(Comic, pk=pk)
-    if comic.propietario != request.user:
-        messages.error(request, 'No tienes permiso para realizar esta acción')
-        return redirect('comics:catalogo')
-
-    if request.method == 'POST':
-        comic.delete()
-        messages.success(request, 'El cómic se eliminó correctamente.')
-        return redirect('comics:catalogo')
-    return render(request, 'comics/comic_confirm_delete.html', {'comic': comic})
-
 
 @login_required
 def crear_categoria(request):

@@ -41,12 +41,12 @@
             <a href="{% url 'comics:catalogo' %}" class="text-center border-4 border-black bg-black text-white font-black uppercase py-3 hover:bg-white hover:text-black transition-colors neo-shadow">
                 ← Volver al Catálogo
             </a>
-            {% if user.is_authenticated %}
+            {% if request.user == comic.propietario %}
             <div class="flex gap-3 mt-2">
-                <a href="{% url 'comics:editar_comic' comic.pk %}" class="flex-1 text-center border-4 border-black bg-blue-400 text-black font-black uppercase py-3 hover:bg-black hover:text-white transition-colors neo-shadow">
+                <a href="{% url 'administrador:editar_comic' comic.pk %}" class="flex-1 text-center border-4 border-black bg-blue-400 text-black font-black uppercase py-3 hover:bg-black hover:text-white transition-colors neo-shadow">
                     Editar
                 </a>
-                <a href="{% url 'comics:eliminar_comic' comic.pk %}" class="flex-1 text-center border-4 border-black bg-red-500 text-white font-black uppercase py-3 hover:bg-black transition-colors neo-shadow">
+                <a href="{% url 'administrador:eliminar_comic' comic.pk %}" class="flex-1 text-center border-4 border-black bg-red-500 text-white font-black uppercase py-3 hover:bg-black transition-colors neo-shadow">
                     Eliminar
                 </a>
             </div>

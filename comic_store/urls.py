@@ -6,10 +6,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # Aquí le decimos a Django: "Cualquier petición a la raíz (''), 
-    # envíala al archivo urls.py de la aplicación 'comics'"
     path('', include('comics.urls')),
+    path('gestion/', include('administrador.urls')),
 ]
 
 if settings.DEBUG:

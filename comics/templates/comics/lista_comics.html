@@ -27,7 +27,7 @@
 
     {% if user.is_authenticated %}
     <div class="mb-8">
-        <a href="{% url 'comics:crear_comic' %}" class="inline-block border-4 border-black bg-blue-400 text-black font-black uppercase px-6 py-3 hover:bg-black hover:text-white transition-colors neo-shadow">
+        <a href="{% url 'administrador:crear_comic' %}" class="inline-block border-4 border-black bg-blue-400 text-black font-black uppercase px-6 py-3 hover:bg-black hover:text-white transition-colors neo-shadow">
             + Agregar Nuevo Cómic
         </a>
     </div>
@@ -64,10 +64,10 @@
             </a>
             {% if request.user == comic.propietario %}
             <div class="mt-3 flex gap-3">
-                <a href="{% url 'comics:editar_comic' comic.id %}" class="flex-1 text-center border-4 border-black bg-yellow-400 font-black uppercase py-2 hover:bg-black hover:text-white transition-colors">
+                <a href="{% url 'administrador:editar_comic' comic.id %}" class="flex-1 text-center border-4 border-black bg-yellow-400 font-black uppercase py-2 hover:bg-black hover:text-white transition-colors">
                     Editar
                 </a>
-                <a href="{% url 'comics:eliminar_comic' comic.id %}" class="flex-1 text-center border-4 border-black bg-red-500 text-white font-black uppercase py-2 hover:bg-black transition-colors">
+                <a href="{% url 'administrador:eliminar_comic' comic.id %}" class="flex-1 text-center border-4 border-black bg-red-500 text-white font-black uppercase py-2 hover:bg-black transition-colors">
                     Eliminar
                 </a>
             </div>

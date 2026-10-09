@@ -56,21 +56,30 @@ class ComicOwnershipTests(TestCase):
 	def test_non_owner_cannot_edit_or_delete_comic(self):
 		self.client.force_login(self.other_user)
 
-		for route_name in ('comics:editar_comic', 'comics:eliminar_comic'):
+		for route_name in ('administrador:editar_comic', 'administrador:eliminar_comic'):
 			response = self.client.get(reverse(route_name, args=[self.comic.pk]))
 
 			self.assertRedirects(response, reverse('comics:catalogo'))
 			self.assertEqual(
 				list(get_messages(response.wsgi_request))[0].message,
-				'No tienes permiso para realizar esta acción',
+				'No tienes permiso para modificar este cómic.',
 			)
 
 		self.assertTrue(Comic.objects.filter(pk=self.comic.pk).exists())
 
+	def test_anonymous_user_is_redirected_to_login_for_edit_and_delete(self):
+		for route_name in ('administrador:editar_comic', 'administrador:eliminar_comic'):
+			response = self.client.get(reverse(route_name, args=[self.comic.pk]))
+
+			self.assertRedirects(
+				response,
+				reverse('comics:login') + '?next=' + reverse(route_name, args=[self.comic.pk]),
+			)
+
 	def test_comic_creation_assigns_authenticated_user_as_owner(self):
 		self.client.force_login(self.owner)
 
-		response = self.client.post(reverse('comics:crear_comic'), {
+		response = self.client.post(reverse('administrador:crear_comic'), {
 			'titulo': 'Nuevo cómic',
 			'autor': 'Editorial nueva',
 			'anio': 2025,
@@ -83,8 +92,8 @@ class ComicOwnershipTests(TestCase):
 		self.assertEqual(created_comic.propietario, self.owner)
 
 	def test_catalog_shows_actions_only_to_comic_owner(self):
-		edit_url = reverse('comics:editar_comic', args=[self.comic.pk])
-		delete_url = reverse('comics:eliminar_comic', args=[self.comic.pk])
+		edit_url = reverse('administrador:editar_comic', args=[self.comic.pk])
+		delete_url = reverse('administrador:eliminar_comic', args=[self.comic.pk])
 
 		self.client.force_login(self.owner)
 		owner_response = self.client.get(reverse('comics:catalogo'))
