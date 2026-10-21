@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.contrib.messages import get_messages
 from django.urls import reverse
 from .models import CategoriaArea, Comic
 
@@ -40,10 +39,25 @@ class LoginViewsTests(TestCase):
 
 		self.assertRedirects(response, '/admin/', fetch_redirect_response=False)
 
+	def test_logout_requires_post_and_clears_session(self):
+		self.client.force_login(self.lector)
+
+		get_response = self.client.get(reverse('comics:logout'))
+		self.assertEqual(get_response.status_code, 405)
+		self.assertIn('_auth_user_id', self.client.session)
+
+		post_response = self.client.post(reverse('comics:logout'))
+		self.assertRedirects(post_response, reverse('comics:catalogo'))
+		self.assertNotIn('_auth_user_id', self.client.session)
+
 
 class ComicOwnershipTests(TestCase):
 	def setUp(self):
-		self.owner = User.objects.create_user(username='owner', password='test-password-123')
+		self.owner = User.objects.create_user(
+			username='owner',
+			password='test-password-123',
+			is_staff=True,
+		)
 		self.other_user = User.objects.create_user(username='other', password='test-password-123')
 		self.category = CategoriaArea.objects.create(nombre='Manga')
 		self.comic = Comic.objects.create(
@@ -53,19 +67,22 @@ class ComicOwnershipTests(TestCase):
 			propietario=self.owner,
 		)
 
-	def test_non_owner_cannot_edit_or_delete_comic(self):
+	def test_non_staff_cannot_edit_or_delete_comic(self):
 		self.client.force_login(self.other_user)
 
 		for route_name in ('administrador:editar_comic', 'administrador:eliminar_comic'):
 			response = self.client.get(reverse(route_name, args=[self.comic.pk]))
 
-			self.assertRedirects(response, reverse('comics:catalogo'))
-			self.assertEqual(
-				list(get_messages(response.wsgi_request))[0].message,
-				'No tienes permiso para modificar este cómic.',
-			)
+			self.assertEqual(response.status_code, 403)
 
 		self.assertTrue(Comic.objects.filter(pk=self.comic.pk).exists())
+
+	def test_non_staff_cannot_create_comic(self):
+		self.client.force_login(self.other_user)
+
+		response = self.client.get(reverse('administrador:crear_comic'))
+
+		self.assertEqual(response.status_code, 403)
 
 	def test_anonymous_user_is_redirected_to_login_for_edit_and_delete(self):
 		for route_name in ('administrador:editar_comic', 'administrador:eliminar_comic'):

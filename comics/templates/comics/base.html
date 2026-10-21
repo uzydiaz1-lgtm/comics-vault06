@@ -28,7 +28,10 @@
                 <a href="{% url 'comics:perfil' %}" class="font-black uppercase text-sm border-4 border-black bg-white px-4 py-2 hover:bg-black hover:text-white transition-colors neo-shadow">
                     {{ user.username }}
                 </a>
-                <a href="{% url 'comics:logout' %}" class="border-4 border-black bg-black text-white font-black uppercase text-sm px-4 py-2 hover:bg-white hover:text-black transition-colors">Salir</a>
+                <form method="post" action="{% url 'comics:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="border-4 border-black bg-black text-white font-black uppercase text-sm px-4 py-2 hover:bg-white hover:text-black transition-colors">Salir</button>
+                </form>
             {% else %}
                 <a href="{% url 'comics:login' %}" class="font-black uppercase text-sm px-2 hover:text-red-600 transition-colors">Ingresar</a>
                 <a href="{% url 'comics:registro' %}" class="border-4 border-black bg-red-600 text-white font-black uppercase text-sm px-6 py-2 hover:bg-black transition-colors neo-shadow">Unirse al Club</a>

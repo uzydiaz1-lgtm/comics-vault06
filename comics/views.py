@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
 from .models import Comic, CategoriaArea, UsuarioLector
 from .forms import CategoriaAreaForm, PerfilLectorForm, UsuarioLectorForm
@@ -107,6 +108,7 @@ def login_admin(request):
         form = AuthenticationForm()
     return render(request, 'comics/login_admin.html', {'form': form})
 
+@require_POST
 def logout_usuario(request):
     logout(request)
     return redirect('comics:catalogo')
