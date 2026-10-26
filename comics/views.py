@@ -1,16 +1,40 @@
-from django.shortcuts import render, redirect
+from functools import wraps
+
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import Q
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView, DetailView
-from .models import Comic, CategoriaArea, UsuarioLector
-from .forms import CategoriaAreaForm, PerfilLectorForm, UsuarioLectorForm
+from django.views.generic import DetailView, ListView
+
+from administrador.models import ReporteBitacora
+from .forms import (
+    CategoriaAreaForm,
+    LoginForm,
+    PerfilLectorForm,
+    RegistroForm,
+    UsuarioLectorForm,
+)
+from .models import CategoriaArea, Comic, UsuarioLector
+
+
+def staff_required(view_func):
+    @wraps(view_func)
+    @login_required
+    def wrapped_view(request, *args, **kwargs):
+        if not (request.user.is_staff or request.user.is_superuser):
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+
+    return wrapped_view
+
 
 def inicio(request):
     return render(request, 'comics/inicio.html')
+
 
 class ComicListView(ListView):
     model = Comic
@@ -19,8 +43,10 @@ class ComicListView(ListView):
 
     def get_queryset(self):
         queryset = Comic.objects.select_related('categoria')
-        self.query = self.request.GET.get('q') or self.request.GET.get('parametro', '')
-        self.query = self.query.strip()
+        self.query = (
+            self.request.GET.get('q')
+            or self.request.GET.get('parametro', '')
+        ).strip()
         self.categoria = self.request.GET.get('categoria', '').strip()
 
         if self.query:
@@ -28,7 +54,10 @@ class ComicListView(ListView):
                 Q(titulo__icontains=self.query) | Q(autor__icontains=self.query)
             )
         if self.categoria:
-            queryset = queryset.filter(categoria__nombre__icontains=self.categoria)
+            if self.categoria.isdecimal():
+                queryset = queryset.filter(categoria_id=self.categoria)
+            else:
+                queryset = queryset.filter(categoria__nombre__icontains=self.categoria)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -37,7 +66,7 @@ class ComicListView(ListView):
             'query': self.query,
             'parametro': self.query,
             'categoria_seleccionada': self.categoria,
-            'categorias': CategoriaArea.objects.all(),
+            'categorias': CategoriaArea.objects.order_by('nombre'),
         })
         return context
 
@@ -49,39 +78,28 @@ class ComicDetailView(DetailView):
 
 
 def buscar_comics(request):
-    parametro = request.GET.get('parametro', '').strip()
-    comics = Comic.objects.select_related('categoria').all()
-    if parametro:
-        comics = comics.filter(
-            Q(titulo__icontains=parametro)
-            | Q(autor__icontains=parametro)
-            | Q(categoria__nombre__icontains=parametro)
-        )
-    return render(request, 'comics/lista_comics.html', {
-        'comics': comics,
-        'resultados': comics,
-        'parametro': parametro,
-        'query': parametro,
-        'categorias': CategoriaArea.objects.all(),
-    })
+    return ComicListView.as_view()(request)
+
 
 def registro_usuario(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            UsuarioLector.objects.create(user=user)
+            with transaction.atomic():
+                user = form.save()
+                UsuarioLector.objects.create(user=user)
             login(request, user)
             messages.success(request, '¡Usuario registrado con éxito!')
             return redirect('comics:catalogo')
         messages.error(request, 'Por favor, corrige los errores indicados en el formulario.')
     else:
-        form = UserCreationForm()
+        form = RegistroForm()
     return render(request, 'comics/registro.html', {'form': form})
+
 
 def login_lector(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
@@ -89,12 +107,13 @@ def login_lector(request):
             return redirect('comics:catalogo')
         messages.error(request, 'Usuario o contraseña incorrectos.')
     else:
-        form = AuthenticationForm()
+        form = LoginForm(request)
     return render(request, 'comics/login_lector.html', {'form': form})
+
 
 def login_admin(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             if user.is_staff or user.is_superuser:
@@ -105,22 +124,25 @@ def login_admin(request):
         else:
             messages.error(request, 'Credenciales de administrador inválidas.')
     else:
-        form = AuthenticationForm()
+        form = LoginForm(request)
     return render(request, 'comics/login_admin.html', {'form': form})
+
 
 @require_POST
 def logout_usuario(request):
     logout(request)
     return redirect('comics:catalogo')
 
+
 @login_required
 def perfil_usuario(request):
-    perfil, created = UsuarioLector.objects.get_or_create(user=request.user)
+    perfil, _ = UsuarioLector.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
         form = PerfilLectorForm(request.POST, instance=perfil)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Tu perfil se actualizó correctamente.')
             return redirect('comics:perfil')
     else:
         form = PerfilLectorForm(instance=perfil)
@@ -130,13 +152,21 @@ def perfil_usuario(request):
         'perfil': perfil,
     })
 
-@login_required
+
+@staff_required
 def crear_categoria(request):
     if request.method == 'POST':
         form = CategoriaAreaForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'El área se creó correctamente.')
+            with transaction.atomic():
+                categoria = form.save()
+                ReporteBitacora.objects.create(
+                    accion='Creación de categoría',
+                    detalles=f'Categoría "{categoria.nombre}" (ID: {categoria.pk}).',
+                    nivel_severidad=1,
+                    usuario=request.user,
+                )
+            messages.success(request, 'La categoría se creó correctamente.')
             return redirect('comics:buscar_categorias')
     else:
         form = CategoriaAreaForm()
@@ -157,6 +187,7 @@ def buscar_categorias(request):
     })
 
 
+@staff_required
 def buscar_usuarios(request):
     parametro = request.GET.get('parametro', '').strip()
     usuarios = UsuarioLector.objects.select_related('user').all()
@@ -173,12 +204,18 @@ def buscar_usuarios(request):
     })
 
 
-@login_required
+@staff_required
 def crear_usuario_lector(request):
     if request.method == 'POST':
         form = UsuarioLectorForm(request.POST)
         if form.is_valid():
-            form.save()
+            perfil = form.save()
+            ReporteBitacora.objects.create(
+                accion='Creación de perfil lector',
+                detalles=f'Perfil lector para "{perfil.user.username}" (ID: {perfil.pk}).',
+                nivel_severidad=1,
+                usuario=request.user,
+            )
             messages.success(request, 'El perfil de lector se creó correctamente.')
             return redirect('comics:buscar_usuarios')
     else:

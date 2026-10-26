@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMIC VAULT</title>
+    <title>{% block title %}COMIC VAULT{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .neo-shadow { box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
@@ -11,19 +11,21 @@
     </style>
 </head>
 <body class="bg-gray-50 text-black">
-    <header class="border-b-8 border-black bg-white flex flex-col md:flex-row items-center justify-between px-8 py-4 sticky top-0 z-50">
+    <header class="border-b-8 border-black bg-white sticky top-0 z-50">
+      <div class="flex flex-wrap items-center justify-between gap-4 px-4 sm:px-8 py-4">
         <a href="{% url 'comics:inicio' %}">
             <h1 class="text-3xl font-black tracking-tighter"><span class="text-black">COMIC</span> <span class="text-red-600">VAULT</span></h1>
         </a>
 
-        <nav class="hidden md:flex gap-8 font-bold text-sm uppercase">
+        <nav class="hidden md:flex gap-6 font-bold text-sm uppercase" aria-label="Navegación principal">
             <a href="{% url 'comics:catalogo' %}" class="hover:text-blue-600 border-b-4 border-transparent hover:border-blue-600 transition-all pb-1">Catálogo</a>
-            <a href="#" class="hover:text-blue-600 transition-colors pb-1">Subastas #1</a>
-            <a href="#" class="hover:text-blue-600 transition-colors pb-1">Novelas Gráficas</a>
-            <a href="#" class="hover:text-blue-600 transition-colors pb-1">Vender</a>
+            <a href="{% url 'comics:buscar_categorias' %}" class="hover:text-blue-600 border-b-4 border-transparent hover:border-blue-600 transition-all pb-1">Categorías</a>
+            {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'comics:buscar_usuarios' %}" class="hover:text-blue-600 border-b-4 border-transparent hover:border-blue-600 transition-all pb-1">Lectores</a>
+            {% endif %}
         </nav>
 
-        <div class="flex items-center gap-4">
+        <div class="hidden md:flex items-center gap-4">
             {% if user.is_authenticated %}
                 <a href="{% url 'comics:perfil' %}" class="font-black uppercase text-sm border-4 border-black bg-white px-4 py-2 hover:bg-black hover:text-white transition-colors neo-shadow">
                     {{ user.username }}
@@ -37,6 +39,29 @@
                 <a href="{% url 'comics:registro' %}" class="border-4 border-black bg-red-600 text-white font-black uppercase text-sm px-6 py-2 hover:bg-black transition-colors neo-shadow">Unirse al Club</a>
             {% endif %}
         </div>
+        <button id="mobile-menu-button" type="button" class="md:hidden border-4 border-black px-3 py-2 font-black uppercase" aria-controls="mobile-navigation" aria-expanded="false">
+            Menú
+        </button>
+        <nav id="mobile-navigation" class="hidden w-full md:hidden border-t-4 border-black pt-4" aria-label="Navegación móvil">
+            <div class="flex flex-col gap-3 font-bold uppercase">
+                <a href="{% url 'comics:catalogo' %}" class="p-2 hover:bg-yellow-300">Catálogo</a>
+                <a href="{% url 'comics:buscar_categorias' %}" class="p-2 hover:bg-yellow-300">Categorías</a>
+                {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'comics:buscar_usuarios' %}" class="p-2 hover:bg-yellow-300">Lectores</a>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <a href="{% url 'comics:perfil' %}" class="p-2 hover:bg-yellow-300">Mi perfil ({{ user.username }})</a>
+                    <form method="post" action="{% url 'comics:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full border-4 border-black bg-black text-white p-2 text-left">Salir</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'comics:login' %}" class="p-2 hover:bg-yellow-300">Ingresar</a>
+                    <a href="{% url 'comics:registro' %}" class="border-4 border-black bg-red-600 text-white p-2">Unirse al Club</a>
+                {% endif %}
+            </div>
+        </nav>
+      </div>
     </header>
 
     <main>
@@ -51,5 +76,14 @@
         <!-- Aquí se inyectará el contenido de las otras vistas -->
         {% endblock %}
     </main>
+    <script>
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileNavigation = document.getElementById('mobile-navigation');
+        menuButton.addEventListener('click', () => {
+            const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
+            menuButton.setAttribute('aria-expanded', String(!isExpanded));
+            mobileNavigation.classList.toggle('hidden', isExpanded);
+        });
+    </script>
 </body>
 </html>

@@ -1,5 +1,9 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .models import CategoriaArea, Comic, UsuarioLector
+
+
+FORM_CONTROL_CLASS = 'w-full max-w-full border-4 border-black p-3 font-bold'
 
 
 class CategoriaAreaForm(forms.ModelForm):
@@ -22,22 +26,42 @@ class CategoriaAreaForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', FORM_CONTROL_CLASS)
+
 
 class PerfilLectorForm(forms.ModelForm):
     class Meta:
         model = UsuarioLector
-        fields = ['alias', 'comic_favorito']
+        fields = ['alias', 'telefono', 'direccion', 'ciudad', 'comic_favorito']
         labels = {
             'alias': 'Alias / Apodo',
+            'telefono': 'Teléfono',
+            'direccion': 'Dirección',
+            'ciudad': 'Ciudad',
             'comic_favorito': 'Selecciona tu Cómic Favorito',
         }
         widgets = {
             'alias': forms.TextInput(attrs={
-                'class': 'w-full border-4 border-black p-3 font-bold',
+                'class': FORM_CONTROL_CLASS,
                 'placeholder': 'Tu alias',
             }),
+            'telefono': forms.TextInput(attrs={
+                'class': FORM_CONTROL_CLASS,
+                'autocomplete': 'tel',
+            }),
+            'direccion': forms.TextInput(attrs={
+                'class': FORM_CONTROL_CLASS,
+                'autocomplete': 'street-address',
+            }),
+            'ciudad': forms.TextInput(attrs={
+                'class': FORM_CONTROL_CLASS,
+                'autocomplete': 'address-level2',
+            }),
             'comic_favorito': forms.Select(attrs={
-                'class': 'w-full border-4 border-black p-3 font-bold',
+                'class': FORM_CONTROL_CLASS,
             }),
         }
 
@@ -45,16 +69,22 @@ class PerfilLectorForm(forms.ModelForm):
 class UsuarioLectorForm(forms.ModelForm):
     class Meta:
         model = UsuarioLector
-        fields = ['user', 'alias', 'comic_favorito']
+        fields = ['user', 'alias', 'telefono', 'direccion', 'ciudad', 'comic_favorito']
         labels = {
             'user': 'Usuario',
             'alias': 'Alias / Apodo',
+            'telefono': 'Teléfono',
+            'direccion': 'Dirección',
+            'ciudad': 'Ciudad',
             'comic_favorito': 'Cómic favorito',
         }
         widgets = {
-            'user': forms.Select(attrs={'class': 'w-full border-4 border-black p-3 font-bold'}),
-            'alias': forms.TextInput(attrs={'class': 'w-full border-4 border-black p-3 font-bold'}),
-            'comic_favorito': forms.Select(attrs={'class': 'w-full border-4 border-black p-3 font-bold'}),
+            'user': forms.Select(attrs={'class': FORM_CONTROL_CLASS}),
+            'alias': forms.TextInput(attrs={'class': FORM_CONTROL_CLASS}),
+            'telefono': forms.TextInput(attrs={'class': FORM_CONTROL_CLASS}),
+            'direccion': forms.TextInput(attrs={'class': FORM_CONTROL_CLASS}),
+            'ciudad': forms.TextInput(attrs={'class': FORM_CONTROL_CLASS}),
+            'comic_favorito': forms.Select(attrs={'class': FORM_CONTROL_CLASS}),
         }
 
 
@@ -71,18 +101,41 @@ class ComicForm(forms.ModelForm):
             'portada': 'Portada',
         }
         widgets = {
-            'titulo': forms.TextInput(attrs={'class': 'w-full border-4 border-black p-3 font-bold'}),
-            'autor': forms.TextInput(attrs={'class': 'w-full border-4 border-black p-3 font-bold'}),
+            'titulo': forms.TextInput(attrs={'class': FORM_CONTROL_CLASS}),
+            'autor': forms.TextInput(attrs={'class': FORM_CONTROL_CLASS}),
             'anio': forms.NumberInput(attrs={
-                'class': 'w-full border-4 border-black p-3 font-bold',
+                'class': FORM_CONTROL_CLASS,
                 'min': 1,
             }),
             'sinopsis': forms.Textarea(attrs={
-                'class': 'w-full border-4 border-black p-3 font-bold',
+                'class': FORM_CONTROL_CLASS,
                 'rows': 5,
             }),
-            'categoria': forms.Select(attrs={'class': 'w-full border-4 border-black p-3 font-bold'}),
+            'categoria': forms.Select(attrs={'class': FORM_CONTROL_CLASS}),
             'portada': forms.ClearableFileInput(attrs={
-                'class': 'w-full border-4 border-black p-3 font-bold',
+                'class': FORM_CONTROL_CLASS,
             }),
         }
+
+    def clean_anio(self):
+        anio = self.cleaned_data['anio']
+        if anio < 1:
+            raise forms.ValidationError('El año debe ser mayor que cero.')
+        return anio
+
+
+class RegistroForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        fields = ('username',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = FORM_CONTROL_CLASS
+
+
+class LoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = FORM_CONTROL_CLASS

@@ -29,6 +29,9 @@ class Comic(models.Model):
 class UsuarioLector(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
     alias = models.CharField(max_length=100, blank=True)
+    telefono = models.CharField(max_length=20, blank=True)
+    direccion = models.CharField(max_length=255, blank=True)
+    ciudad = models.CharField(max_length=100, blank=True)
     comic_favorito = models.ForeignKey(Comic, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

@@ -1,11 +1,11 @@
 {% extends 'comics/base.html' %}
 
 {% block content %}
-<div class="max-w-md mx-auto my-12 p-8 bg-white border-4 border-black neo-shadow text-black text-center">
+<div class="max-w-md mx-4 sm:mx-auto my-8 sm:my-12 p-4 sm:p-8 bg-white border-4 border-black neo-shadow text-black text-center">
     <h2 class="text-3xl font-black uppercase mb-4 text-red-500">¿Estás seguro?</h2>
     <p class="font-bold text-lg mb-6">Vas a eliminar el cómic: <br><span class="text-2xl uppercase border-b-4 border-black inline-block mt-2">{{ comic.titulo }}</span></p>
 
-    <form method="post" class="flex gap-4">
+    <form method="post" class="flex flex-col sm:flex-row gap-4">
         {% csrf_token %}
         <button type="submit" class="flex-1 border-4 border-black bg-red-500 text-white font-black uppercase py-3 hover:bg-black transition-colors neo-shadow">
             Sí, Eliminar

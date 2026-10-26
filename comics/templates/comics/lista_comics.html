@@ -1,20 +1,22 @@
 {% extends 'comics/base.html' %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto p-8">
-    <form method="get" action="{% url 'comics:catalogo' %}" class="mb-12 p-6 bg-yellow-400 border-8 border-black neo-shadow flex flex-col md:flex-row gap-4 items-end">
+<div class="max-w-7xl mx-auto p-4 sm:p-8">
+    <form method="get" action="{% url 'comics:catalogo' %}" class="mb-12 p-4 sm:p-6 bg-yellow-400 border-8 border-black neo-shadow flex flex-col md:flex-row gap-4 items-stretch md:items-end">
         <div class="flex-grow w-full">
-            <label for="q" class="font-black uppercase text-sm mb-1 block">Buscar Cómic o Autor:</label>
+            <label for="parametro" class="font-black uppercase text-sm mb-1 block">Buscar Cómic o Autor:</label>
             <input type="text" name="parametro" id="parametro" value="{{ parametro|default:query }}" placeholder="Ej: Batman, Watchmen..." class="w-full border-4 border-black p-3 font-bold text-lg focus:outline-none focus:bg-white bg-gray-50 placeholder-gray-400">
         </div>
 
         <div class="w-full md:w-64">
-            <label for="categoria" class="font-black uppercase text-sm mb-1 block">Filtrar por Área:</label>
+            <label for="categoria" class="font-black uppercase text-sm mb-1 block">Filtrar por categoría:</label>
             <select name="categoria" id="categoria" class="w-full border-4 border-black p-3 font-bold text-lg focus:outline-none bg-white cursor-pointer">
-                <option value="">Todas las áreas</option>
-                <option value="Americano" {% if categoria_seleccionada == 'Americano' %}selected{% endif %}>Americano / Moderno</option>
-                <option value="Webtoon" {% if categoria_seleccionada == 'Webtoon' %}selected{% endif %}>Webtoon / Indie</option>
-                <option value="Manga" {% if categoria_seleccionada == 'Manga' %}selected{% endif %}>Manga / Importación</option>
+                <option value="">Todas las categorías</option>
+                {% for categoria in categorias %}
+                    {% with categoria.pk|stringformat:"s" as categoria_id %}
+                    <option value="{{ categoria.pk }}" {% if categoria_seleccionada == categoria_id %}selected{% endif %}>{{ categoria.nombre }}</option>
+                    {% endwith %}
+                {% endfor %}
             </select>
         </div>
 
@@ -25,7 +27,7 @@
         </div>
     </form>
 
-    {% if user.is_authenticated %}
+    {% if user.is_staff or user.is_superuser %}
     <div class="mb-8">
         <a href="{% url 'administrador:crear_comic' %}" class="inline-block border-4 border-black bg-blue-400 text-black font-black uppercase px-6 py-3 hover:bg-black hover:text-white transition-colors neo-shadow">
             + Agregar Nuevo Cómic
@@ -62,7 +64,7 @@
             <a href="{% url 'comics:detalle_comic' comic.id %}" class="mt-6 block text-center border-4 border-black bg-black text-white font-black uppercase py-3 hover:bg-white hover:text-black transition-colors">
                 Ver Detalle
             </a>
-            {% if request.user == comic.propietario %}
+            {% if request.user.is_staff or request.user.is_superuser %}
             <div class="mt-3 flex gap-3">
                 <a href="{% url 'administrador:editar_comic' comic.id %}" class="flex-1 text-center border-4 border-black bg-yellow-400 font-black uppercase py-2 hover:bg-black hover:text-white transition-colors">
                     Editar

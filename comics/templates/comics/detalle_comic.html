@@ -41,7 +41,7 @@
             <a href="{% url 'comics:catalogo' %}" class="text-center border-4 border-black bg-black text-white font-black uppercase py-3 hover:bg-white hover:text-black transition-colors neo-shadow">
                 ← Volver al Catálogo
             </a>
-            {% if request.user == comic.propietario %}
+            {% if request.user.is_staff or request.user.is_superuser %}
             <div class="flex gap-3 mt-2">
                 <a href="{% url 'administrador:editar_comic' comic.pk %}" class="flex-1 text-center border-4 border-black bg-blue-400 text-black font-black uppercase py-3 hover:bg-black hover:text-white transition-colors neo-shadow">
                     Editar
