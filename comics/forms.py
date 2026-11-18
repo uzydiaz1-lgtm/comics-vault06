@@ -7,6 +7,17 @@ FORM_CONTROL_CLASS = 'w-full max-w-full border-4 border-black p-3 font-bold'
 
 
 class ContactoForm(forms.ModelForm):
+    acepta_privacidad = forms.BooleanField(
+        required=True,
+        label='He leído y acepto la Política de Privacidad',
+        error_messages={
+            'required': 'Debés aceptar la Política de Privacidad para enviar el mensaje.',
+        },
+        widget=forms.CheckboxInput(attrs={
+            'class': 'h-5 w-5 border-4 border-black',
+        }),
+    )
+
     class Meta:
         model = MensajeContacto
         fields = ['nombre', 'email', 'mensaje']

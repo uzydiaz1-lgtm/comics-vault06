@@ -17,6 +17,7 @@ class ContactViewsTests(TestCase):
             'nombre': 'Ada Lovelace',
             'email': 'ada@example.com',
             'mensaje': 'Quisiera más información.',
+            'acepta_privacidad': 'on',
         })
 
         self.assertEqual(response.status_code, 302)
@@ -37,11 +38,23 @@ class ContactViewsTests(TestCase):
             'nombre': '',
             'email': 'no-es-un-correo',
             'mensaje': '',
+            'acepta_privacidad': 'on',
         })
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(MensajeContacto.objects.count(), 0)
         self.assertEqual(mail.outbox, [])
+
+    def test_contact_submission_requires_privacy_consent(self):
+        response = self.client.post(reverse('comics:contacto'), {
+            'nombre': 'Ada Lovelace',
+            'email': 'ada@example.com',
+            'mensaje': 'Quisiera más información.',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MensajeContacto.objects.count(), 0)
+        self.assertContains(response, 'Debés aceptar la Política de Privacidad')
 
     def test_message_list_requires_staff(self):
         response = self.client.get(reverse('comics:listar_mensajes'))

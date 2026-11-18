@@ -60,6 +60,8 @@ def contacto(request):
                 'asunto': asunto,
             }
 
+            email_admin_enviado = False
+            respuesta_enviada = False
             try:
                 email_admin = EmailMessage(
                     subject=f'Nuevo mensaje de contacto de {contacto_obj.nombre}',
@@ -69,7 +71,7 @@ def contacto(request):
                     reply_to=[contacto_obj.email],
                 )
                 email_admin.content_subtype = 'html'
-                admin_enviado = email_admin.send()
+                email_admin_enviado = email_admin.send(fail_silently=True) > 0
                 respuesta_enviada = send_mail(
                     subject='Hemos recibido tu consulta - Comic Vault',
                     message=(
@@ -80,9 +82,8 @@ def contacto(request):
                     ),
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[contacto_obj.email],
-                )
-                if not admin_enviado or not respuesta_enviada:
-                    raise smtplib.SMTPException('El servidor no confirmó el envío de ambos correos.')
+                    fail_silently=True,
+                ) > 0
             except (OSError, smtplib.SMTPException, ValueError):
                 logger.exception('No se pudieron enviar los correos del mensaje de contacto %s.', contacto_obj.pk)
                 messages.warning(
@@ -90,7 +91,23 @@ def contacto(request):
                     'Guardamos tu mensaje, pero no pudimos enviar la notificación por correo.',
                 )
             else:
-                messages.success(request, '¡Tu mensaje ha sido enviado con éxito!')
+                if email_admin_enviado and respuesta_enviada:
+                    messages.success(request, '¡Tu mensaje ha sido enviado con éxito!')
+                else:
+                    if not email_admin_enviado:
+                        logger.warning(
+                            'No se pudo enviar al administrador la notificación del mensaje %s.',
+                            contacto_obj.pk,
+                        )
+                    if not respuesta_enviada:
+                        logger.warning(
+                            'No se pudo enviar la respuesta automática del mensaje %s.',
+                            contacto_obj.pk,
+                        )
+                    messages.warning(
+                        request,
+                        'Guardamos tu mensaje, pero no pudimos confirmar todos los envíos por correo.',
+                    )
             return redirect('comics:gracias')
     else:
         form = ContactoForm()

@@ -1,22 +1,33 @@
 # Comics Vault
 
-Aplicación Django con arquitectura MVT multiapp:
+## Descripción
 
-- `comic_store/`: configuración, ASGI/WSGI y enrutamiento del proyecto Django.
-- `comics/`: catálogo, cómics, categorías, registro/autenticación y perfiles de lectores.
-- `administrador/`: operaciones administrativas de cómics y bitácora.
+Comics Vault es una aplicación web desarrollada con Django para consultar un catálogo de cómics,
+registrar lectores y administrar categorías, publicaciones y mensajes de contacto. Conserva una
+interfaz responsive con identidad visual neobrutalista.
 
-El catálogo admite búsquedas por título o autor y filtros por categoría. Crear, editar y
-eliminar cómics, administrar categorías y gestionar perfiles de lectores están limitados
-a usuarios staff o superusuarios. Las portadas se guardan en `media/portadas/`.
-El formulario público de contacto está disponible en `/contacto/`; el listado
-paginado de mensajes está en `/mensajes/` y requiere una cuenta staff o superusuario.
+El proyecto utiliza una arquitectura MVT distribuida en dos aplicaciones:
+
+- `comic_store/`: configuración del proyecto, archivos estáticos y rutas principales.
+- `comics/`: catálogo, categorías, lectores, autenticación, páginas legales y mensajes.
+- `administrador/`: alta, edición y eliminación administrativa de cómics, con bitácora.
+
+## Tecnologías
+
+- Python
+- Django
+- SQLite
+- HTML y Tailwind CSS
+- JavaScript
+- Toastr
+- Google Maps
+- Pillow
 
 ## Requisitos
 
-- Python 3.10 o superior.
-- PowerShell en Windows.
-- Dependencias de `requirements.txt`.
+- Python 3.14 o compatible con Django 6.1.
+- PowerShell o terminal compatible.
+- Dependencias indicadas en `requirements.txt`.
 
 ## Instalación en Windows
 
@@ -29,39 +40,45 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Si PowerShell bloquea la activación, puede usar el intérprete del entorno sin activarlo:
+Si PowerShell bloquea la activación del entorno virtual:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Para desarrollo, Django usa un valor de clave local no secreto si no se define
-`DJANGO_SECRET_KEY`. No reutilice ese valor en producción. En PowerShell genere y
-configure una clave privada para la sesión:
+## Variables de entorno
+
+Para desarrollo Django utiliza una clave local si no se define `DJANGO_SECRET_KEY`. No reutilice
+ese valor en producción.
 
 ```powershell
-$env:DJANGO_SECRET_KEY = python -c "import secrets; print(secrets.token_urlsafe(50))"
+$env:DJANGO_SECRET_KEY = "clave-secreta-generada-por-el-entorno"
+$env:DJANGO_DEBUG = "False"
+$env:DJANGO_ALLOWED_HOSTS = "localhost,127.0.0.1"
 ```
 
-Para producción configure también `DJANGO_DEBUG=False` y `DJANGO_ALLOWED_HOSTS` con
-los nombres de host permitidos. La configuración de base de datos predeterminada es
-SQLite (`db.sqlite3`); puede ajustarse en `comic_store/settings.py`.
+La configuración predeterminada usa SQLite y el archivo `db.sqlite3`. Las variables no deben
+contener espacios adicionales ni comillas dentro del valor almacenado.
 
-## Correo electrónico
+## Configuración de correo SMTP
 
-El envío de correo usa Gmail por SMTP con TLS. Configure el correo y una contraseña
-de aplicación de Google en el entorno; no escriba estas credenciales en el código:
+El proyecto puede enviar una notificación al administrador y una respuesta automática al usuario.
+Configure las credenciales mediante variables de entorno; no las escriba en archivos del proyecto:
 
 ```powershell
+$env:EMAIL_HOST = "smtp.gmail.com"
+$env:EMAIL_PORT = "587"
+$env:EMAIL_USE_TLS = "true"
+$env:EMAIL_USE_SSL = "false"
 $env:EMAIL_HOST_USER = "tu_correo@gmail.com"
-$env:EMAIL_HOST_PASSWORD = "tu_contraseña_de_aplicacion"
-$env:DEFAULT_FROM_EMAIL = $env:EMAIL_HOST_USER
+$env:EMAIL_HOST_PASSWORD = "tu_contrasena_de_aplicacion"
+$env:DEFAULT_FROM_EMAIL = "tu_correo@gmail.com"
 ```
 
-La contraseña debe ser una contraseña de aplicación generada desde la cuenta de
-Google (requiere tener activada la verificación en dos pasos).
+Para Gmail debe utilizarse una contraseña de aplicación configurada en la cuenta. Los intentos
+fallidos quedan registrados en el log de Django y no exponen la contraseña.
 
-## Base de datos y ejecución
+## Migraciones y servidor
 
 ```powershell
 python manage.py migrate
@@ -69,9 +86,38 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Abra <http://127.0.0.1:8000/>. La administración de Django está en
-<http://127.0.0.1:8000/admin/>. El panel administrativo propio se encuentra bajo
-`/gestion/`; las acciones administrativas se guardan en `ReporteBitacora`.
+Abra <http://127.0.0.1:8000/>. No elimine las migraciones ni reinicie la base de datos para aplicar
+cambios posteriores al esquema.
+
+## Rutas principales
+
+| Ruta | Función |
+| --- | --- |
+| `/` | Página de inicio |
+| `/catalogo/` | Catálogo y búsqueda |
+| `/detalle/<id>/` | Detalle de un cómic |
+| `/contacto/` | Formulario de contacto |
+| `/gracias/` | Confirmación de recepción |
+| `/politica-privacidad/` | Política de privacidad |
+| `/terminos-condiciones/` | Términos y condiciones |
+| `/listar-mensajes/` | Mensajes recibidos, solo staff |
+| `/registro/` | Registro de lector |
+| `/login/` | Inicio de sesión |
+| `/perfil/` | Perfil del lector |
+| `/gestion/nuevo/` | Alta administrativa de cómics |
+| `/admin/` | Administración integrada de Django |
+
+## Acceso administrativo
+
+Las vistas administrativas propias requieren `is_staff=True` o `is_superuser=True`.
+Para crear un usuario administrador desde la terminal:
+
+```powershell
+python manage.py createsuperuser
+```
+
+El listado `/listar-mensajes/` muestra 5 mensajes por página. Las operaciones sobre cómics y perfiles
+también cuentan con protección de permisos y registros de auditoría cuando corresponde.
 
 ## Verificación
 
@@ -81,6 +127,3 @@ python manage.py makemigrations --check --dry-run
 python manage.py migrate --check
 python manage.py test
 ```
-
-No se debe borrar ni regenerar la base de datos ni las migraciones para actualizar el
-proyecto: los cambios del esquema se aplican creando y ejecutando migraciones nuevas.
