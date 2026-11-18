@@ -5,6 +5,11 @@ app_name = 'comics'
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),
+    path('contacto/', views.contacto, name='contacto'),
+    path('gracias/', views.pagina_de_gracias, name='gracias'),
+    path('politica-privacidad/', views.politica_privacidad, name='politica_privacidad'),
+    path('terminos-condiciones/', views.terminos_condiciones, name='terminos_condiciones'),
+    path('listar-mensajes/', views.listar_mensajes, name='listar_mensajes'),
     path('catalogo/', views.ComicListView.as_view(), name='catalogo'),
     path('buscar/comics/', views.buscar_comics, name='buscar_comics'),
     path('buscar/categorias/', views.buscar_categorias, name='buscar_categorias'),

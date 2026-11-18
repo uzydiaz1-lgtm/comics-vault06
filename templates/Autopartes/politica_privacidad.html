@@ -1,0 +1,75 @@
+{% extends 'comics/base.html' %}
+
+{% block title %}Política de Privacidad - Comic Vault{% endblock %}
+
+{% block content %}
+<section class="mx-auto my-12 max-w-4xl px-4 sm:px-6">
+    <article class="border-4 border-black bg-white p-6 text-slate-800 shadow-[6px_6px_0_0_rgba(0,0,0,1)] sm:p-10">
+        <h2 class="mb-4 border-b-4 border-black pb-4 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+            Política de Privacidad y Protección de Datos Personales
+        </h2>
+        <p class="mb-8 text-sm font-medium text-slate-600">
+            Conforme a la Ley N.º 25.326 de Protección de los Datos Personales de la República Argentina.
+        </p>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">1. Responsable y datos tratados</h3>
+            <p class="leading-relaxed">
+                Comic Vault, a través de la administración del sitio, trata los datos que las personas
+                proporcionan al crear una cuenta, actualizar su perfil o enviar una consulta. Según el
+                uso del sitio, estos datos pueden incluir nombre de usuario, alias, teléfono, dirección,
+                ciudad, correo electrónico y el contenido de los mensajes enviados.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">2. Finalidad y consentimiento</h3>
+            <p class="leading-relaxed">
+                Los datos se utilizan para gestionar cuentas y perfiles de lectores, responder consultas
+                y operar las funciones del sitio. No deben utilizarse para finalidades distintas o
+                incompatibles con aquellas para las que fueron recabados. Cuando corresponda, el
+                consentimiento debe ser libre, expreso e informado, de acuerdo con los artículos 5 y 6
+                de la Ley N.º 25.326.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">3. Confidencialidad y conservación</h3>
+            <p class="leading-relaxed">
+                Los datos personales son confidenciales y deben ser tratados con medidas de seguridad
+                adecuadas. Se conservan durante el tiempo necesario para cumplir las finalidades
+                indicadas y las obligaciones legales aplicables. Solo podrán comunicarse cuando exista
+                consentimiento válido o una obligación legal que lo permita o exija.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">4. Derechos de las personas titulares</h3>
+            <p class="leading-relaxed">
+                La persona titular puede solicitar el acceso a sus datos, así como su rectificación,
+                actualización o supresión, conforme a los artículos 14 y 16 de la Ley N.º 25.326. El
+                derecho de acceso puede ejercerse gratuitamente con la periodicidad establecida por la
+                ley, salvo que se acredite un interés legítimo. Para iniciar una solicitud, puede
+                comunicarse mediante la sección
+                <a href="{% url 'comics:contacto' %}" class="font-bold underline hover:text-red-600">Contacto</a>
+                e indicar el derecho que desea ejercer.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">5. Órgano de control</h3>
+            <p class="leading-relaxed">
+                La Agencia de Acceso a la Información Pública (AAIP) es el órgano de control de la Ley
+                N.º 25.326. Las personas titulares pueden acudir a la AAIP para presentar reclamos
+                relacionados con la protección de sus datos personales.
+            </p>
+        </section>
+
+        <div class="mt-10 border-t-4 border-black pt-6">
+            <a href="{% url 'comics:inicio' %}" class="inline-block border-4 border-black bg-yellow-400 px-5 py-3 font-black uppercase hover:bg-black hover:text-white">
+                Volver al inicio
+            </a>
+        </div>
+    </article>
+</section>
+{% endblock %}

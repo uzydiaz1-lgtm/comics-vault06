@@ -1,9 +1,30 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from .models import CategoriaArea, Comic, UsuarioLector
+from .models import CategoriaArea, Comic, MensajeContacto, UsuarioLector
 
 
 FORM_CONTROL_CLASS = 'w-full max-w-full border-4 border-black p-3 font-bold'
+
+
+class ContactoForm(forms.ModelForm):
+    class Meta:
+        model = MensajeContacto
+        fields = ['nombre', 'email', 'mensaje']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Tu nombre y apellido',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'tu_correo@ejemplo.com',
+            }),
+            'mensaje': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Escribí tu consulta acá...',
+            }),
+        }
 
 
 class CategoriaAreaForm(forms.ModelForm):

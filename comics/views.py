@@ -1,24 +1,34 @@
+import logging
+import smtplib
 from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
+from django.core.mail import EmailMessage, send_mail
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 
 from administrador.models import ReporteBitacora
 from .forms import (
     CategoriaAreaForm,
+    ContactoForm,
     LoginForm,
     PerfilLectorForm,
     RegistroForm,
     UsuarioLectorForm,
 )
-from .models import CategoriaArea, Comic, UsuarioLector
+from .models import CategoriaArea, Comic, MensajeContacto, UsuarioLector
+
+
+logger = logging.getLogger(__name__)
 
 
 def staff_required(view_func):
@@ -34,6 +44,80 @@ def staff_required(view_func):
 
 def inicio(request):
     return render(request, 'comics/inicio.html')
+
+
+def contacto(request):
+    if request.method == 'POST':
+        form = ContactoForm(request.POST)
+        if form.is_valid():
+            contacto_obj = form.save()
+            asunto = 'Nueva consulta web - Comic Vault'
+            contexto = {
+                'nombre': contacto_obj.nombre,
+                'email': contacto_obj.email,
+                'mensaje': contacto_obj.mensaje,
+                'fecha': contacto_obj.fecha_envio,
+                'asunto': asunto,
+            }
+
+            try:
+                email_admin = EmailMessage(
+                    subject=f'Nuevo mensaje de contacto de {contacto_obj.nombre}',
+                    body=render_to_string('Autopartes/email-template.html', contexto),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[settings.DEFAULT_FROM_EMAIL],
+                    reply_to=[contacto_obj.email],
+                )
+                email_admin.content_subtype = 'html'
+                admin_enviado = email_admin.send()
+                respuesta_enviada = send_mail(
+                    subject='Hemos recibido tu consulta - Comic Vault',
+                    message=(
+                        f'Hola {contacto_obj.nombre},\n\n'
+                        'Gracias por comunicarte con nosotros. Hemos recibido tu '
+                        'mensaje y te responderemos a la brevedad.\n\n'
+                        'Atentamente,\nEl equipo de Comic Vault.'
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[contacto_obj.email],
+                )
+                if not admin_enviado or not respuesta_enviada:
+                    raise smtplib.SMTPException('El servidor no confirmó el envío de ambos correos.')
+            except (OSError, smtplib.SMTPException, ValueError):
+                logger.exception('No se pudieron enviar los correos del mensaje de contacto %s.', contacto_obj.pk)
+                messages.warning(
+                    request,
+                    'Guardamos tu mensaje, pero no pudimos enviar la notificación por correo.',
+                )
+            else:
+                messages.success(request, '¡Tu mensaje ha sido enviado con éxito!')
+            return redirect('comics:gracias')
+    else:
+        form = ContactoForm()
+
+    return render(request, 'Autopartes/contacto.html', {'form': form})
+
+
+def pagina_de_gracias(request):
+    return render(request, 'Autopartes/gracias.html')
+
+
+def politica_privacidad(request):
+    """Vista para renderizar la página de Política de Privacidad conforme Ley 25.326."""
+    return render(request, 'Autopartes/politica_privacidad.html')
+
+
+def terminos_condiciones(request):
+    """Vista para renderizar la página de Términos y Condiciones."""
+    return render(request, 'Autopartes/terminos_condiciones.html')
+
+
+@staff_required
+def listar_mensajes(request):
+    mensajes_listado = MensajeContacto.objects.order_by('-fecha_envio')
+    paginator = Paginator(mensajes_listado, 5)
+    mensajes = paginator.get_page(request.GET.get('page'))
+    return render(request, 'Autopartes/listar_mensajes.html', {'mensajes': mensajes})
 
 
 class ComicListView(ListView):

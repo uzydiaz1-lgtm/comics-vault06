@@ -1,0 +1,55 @@
+{% extends 'comics/base.html' %}
+
+{% block title %}Listado de mensajes | COMIC VAULT{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-6 py-12">
+    <h2 class="text-4xl font-black uppercase tracking-tight mb-8">Consultas recibidas</h2>
+    {% if mensajes %}
+    <div class="overflow-x-auto border-4 border-black bg-white">
+        <table class="w-full border-collapse text-left">
+            <thead class="bg-black text-white uppercase">
+                <tr>
+                    <th scope="col" class="p-4">Fecha</th>
+                    <th scope="col" class="p-4">Nombre</th>
+                    <th scope="col" class="p-4">Correo electrónico</th>
+                    <th scope="col" class="p-4">Mensaje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mensaje in mensajes %}
+                <tr class="border-t-2 border-gray-200">
+                    <td class="p-4 whitespace-nowrap">
+                        <time datetime="{{ mensaje.fecha_envio|date:'c' }}">{{ mensaje.fecha_envio|date:'d/m/Y H:i' }}</time>
+                    </td>
+                    <td class="p-4 font-bold">{{ mensaje.nombre }}</td>
+                    <td class="p-4"><a class="text-blue-700 underline" href="mailto:{{ mensaje.email }}">{{ mensaje.email }}</a></td>
+                    <td class="p-4">{{ mensaje.mensaje|truncatechars:80 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="flex flex-wrap items-center justify-center gap-4 mt-8 font-black" aria-label="Paginación de mensajes">
+        {% if mensajes.has_previous %}
+        <a class="border-4 border-black bg-white px-4 py-2 hover:bg-yellow-300" href="?page={{ mensajes.previous_page_number }}">Anterior</a>
+        {% else %}
+        <span class="border-4 border-gray-300 px-4 py-2 text-gray-500" aria-disabled="true">Anterior</span>
+        {% endif %}
+        <span aria-current="page">Página {{ mensajes.number }} de {{ mensajes.paginator.num_pages }}</span>
+        {% if mensajes.has_next %}
+        <a class="border-4 border-black bg-white px-4 py-2 hover:bg-yellow-300" href="?page={{ mensajes.next_page_number }}">Siguiente</a>
+        {% else %}
+        <span class="border-4 border-gray-300 px-4 py-2 text-gray-500" aria-disabled="true">Siguiente</span>
+        {% endif %}
+    </nav>
+    {% else %}
+    <p class="border-4 border-black bg-blue-100 p-6 text-center font-bold" role="status">No hay mensajes de contacto registrados todavía.</p>
+    {% endif %}
+
+    <a href="{% url 'comics:inicio' %}" class="inline-block mt-8 border-4 border-black bg-white px-5 py-3 font-black uppercase hover:bg-black hover:text-white transition-colors">
+        Volver al inicio
+    </a>
+</section>
+{% endblock %}

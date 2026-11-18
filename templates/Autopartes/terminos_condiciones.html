@@ -1,0 +1,85 @@
+{% extends 'comics/base.html' %}
+
+{% block title %}Términos y Condiciones - Comic Vault{% endblock %}
+
+{% block content %}
+<section class="mx-auto my-12 max-w-4xl px-4 sm:px-6">
+    <article class="border-4 border-black bg-white p-6 text-slate-800 shadow-[6px_6px_0_0_rgba(0,0,0,1)] sm:p-10">
+        <h2 class="mb-8 border-b-4 border-black pb-4 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+            Términos y Condiciones
+        </h2>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">1. Aceptación y alcance</h3>
+            <p class="leading-relaxed">
+                El acceso y uso de Comic Vault implica la aceptación de estos términos. Si no estás de
+                acuerdo, no utilices las funciones que requieren una cuenta. Estos términos se aplican
+                al catálogo, las cuentas de lectores y los formularios disponibles en el sitio.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">2. Cuentas y seguridad</h3>
+            <p class="leading-relaxed">
+                Al crear una cuenta, debes proporcionar información veraz y mantenerla actualizada.
+                Eres responsable de resguardar tus credenciales y de las actividades realizadas desde
+                tu cuenta. Si sospechas un acceso no autorizado, comunícate con nosotros mediante
+                <a href="{% url 'comics:contacto' %}" class="font-bold underline hover:text-red-600">Contacto</a>.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">3. Uso permitido</h3>
+            <p class="leading-relaxed">
+                Debes utilizar el sitio de forma lícita y respetuosa, sin interferir con su
+                funcionamiento, intentar acceder sin autorización a cuentas o sistemas, ni enviar
+                contenido ilegal, engañoso o que vulnere derechos de otras personas.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">4. Catálogo y contenido</h3>
+            <p class="leading-relaxed">
+                La información del catálogo se ofrece con fines informativos y puede actualizarse,
+                modificarse o retirarse. Procuramos mantenerla correcta, pero no garantizamos que cada
+                descripción, imagen o dato esté siempre completo o libre de errores. La disponibilidad
+                del catálogo no constituye por sí misma una oferta de venta ni confirma stock, precio
+                o condiciones de compra.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">5. Disponibilidad del servicio</h3>
+            <p class="leading-relaxed">
+                Podemos realizar tareas de mantenimiento o cambios en las funciones del sitio. Aunque
+                procuramos mantenerlo disponible, no garantizamos un acceso continuo o libre de
+                interrupciones.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">6. Privacidad</h3>
+            <p class="leading-relaxed">
+                El tratamiento de datos personales se describe en nuestra
+                <a href="{% url 'comics:politica_privacidad' %}" class="font-bold underline hover:text-red-600">Política de Privacidad</a>.
+            </p>
+        </section>
+
+        <section class="mb-6">
+            <h3 class="mb-2 text-xl font-black">7. Cambios y contacto</h3>
+            <p class="leading-relaxed">
+                Estos términos pueden actualizarse para reflejar cambios en el sitio o en la normativa
+                aplicable. La versión vigente estará publicada en esta página. Para consultas, puedes
+                escribirnos desde la sección
+                <a href="{% url 'comics:contacto' %}" class="font-bold underline hover:text-red-600">Contacto</a>.
+            </p>
+        </section>
+
+        <div class="mt-10 border-t-4 border-black pt-6">
+            <a href="{% url 'comics:inicio' %}" class="inline-block border-4 border-black bg-yellow-400 px-5 py-3 font-black uppercase hover:bg-black hover:text-white">
+                Volver al inicio
+            </a>
+        </div>
+    </article>
+</section>
+{% endblock %}

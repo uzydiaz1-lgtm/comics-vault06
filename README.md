@@ -9,6 +9,8 @@ Aplicación Django con arquitectura MVT multiapp:
 El catálogo admite búsquedas por título o autor y filtros por categoría. Crear, editar y
 eliminar cómics, administrar categorías y gestionar perfiles de lectores están limitados
 a usuarios staff o superusuarios. Las portadas se guardan en `media/portadas/`.
+El formulario público de contacto está disponible en `/contacto/`; el listado
+paginado de mensajes está en `/mensajes/` y requiere una cuenta staff o superusuario.
 
 ## Requisitos
 
@@ -44,6 +46,20 @@ $env:DJANGO_SECRET_KEY = python -c "import secrets; print(secrets.token_urlsafe(
 Para producción configure también `DJANGO_DEBUG=False` y `DJANGO_ALLOWED_HOSTS` con
 los nombres de host permitidos. La configuración de base de datos predeterminada es
 SQLite (`db.sqlite3`); puede ajustarse en `comic_store/settings.py`.
+
+## Correo electrónico
+
+El envío de correo usa Gmail por SMTP con TLS. Configure el correo y una contraseña
+de aplicación de Google en el entorno; no escriba estas credenciales en el código:
+
+```powershell
+$env:EMAIL_HOST_USER = "tu_correo@gmail.com"
+$env:EMAIL_HOST_PASSWORD = "tu_contraseña_de_aplicacion"
+$env:DEFAULT_FROM_EMAIL = $env:EMAIL_HOST_USER
+```
+
+La contraseña debe ser una contraseña de aplicación generada desde la cuenta de
+Google (requiere tener activada la verificación en dos pasos).
 
 ## Base de datos y ejecución
 

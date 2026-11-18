@@ -1,0 +1,15 @@
+{% extends 'comics/base.html' %}
+
+{% block title %}Gracias | COMIC VAULT{% endblock %}
+
+{% block content %}
+<section class="max-w-3xl mx-auto px-6 py-16 text-center">
+    <div class="border-8 border-black bg-emerald-300 p-8 sm:p-12 neo-shadow">
+        <h2 class="text-4xl sm:text-5xl font-black uppercase tracking-tight mb-4">¡Gracias por escribirnos!</h2>
+        <p class="text-lg font-bold mb-8">Recibimos tu mensaje y te responderemos a la brevedad.</p>
+        <a href="{% url 'comics:inicio' %}" class="inline-block border-4 border-black bg-white px-6 py-3 font-black uppercase hover:bg-black hover:text-white transition-colors">
+            Volver al inicio
+        </a>
+    </div>
+</section>
+{% endblock %}
